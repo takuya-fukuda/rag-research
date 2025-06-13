@@ -8,6 +8,8 @@ django-admin startproject config .
 
 ## Git の管理からソース以外のファイルを外す
 
+下記 Linux ベースだが Windows の VSCode の場合は、普通にファイル作成ボタンでやらないと Unicode のエラーで反映されない
+
 ```
 echo '__pycache__/' >.gitignore
 ```
