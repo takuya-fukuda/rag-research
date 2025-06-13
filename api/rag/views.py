@@ -18,13 +18,8 @@ llm = ChatOpenAI(
     openai_api_key=os.getenv("OPENAI_API_KEY")  # .envや環境変数で設定
 )
 
-memory = ConversationBufferMemory(return_messages=True)
-
-conversation = ConversationChain(
-    llm=llm,
-    memory=memory,
-    verbose=True,
-)
+# グローバル辞書でユーザごとのメモリを管理
+memory_map = {}
 
 # Create your views here.
 class NormalChat(APIView):
@@ -32,12 +27,16 @@ class NormalChat(APIView):
         return Response({"message": "Hello from the backend!"})
     
     def post(self, request, format=None):
-        question = request.data.get("question")
-        if not question:
-            return Response({"error": "questionフィールドが必要です"}, status=status.HTTP_400_BAD_REQUEST)
+        user_id = request.data.get("user_id", "default_user")  # ユーザIDを取得、デフォルトは"default_user"
 
-        try:
-            answer = conversation.predict(input=question)
-            return Response({"question": question, "answer": answer})
-        except Exception as e:
-            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        # セッションごとのメモリを保持
+        if user_id not in memory_map:
+            memory_map[user_id] = ConversationBufferMemory(return_messages=True)
+
+        memory = memory_map[user_id]
+        conversation = ConversationChain(llm=llm, memory=memory)
+
+        question = request.data.get("question", "")
+        answer = conversation.predict(input=question)
+
+        return Response({"question": question, "answer": answer})
