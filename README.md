@@ -1,3 +1,7 @@
+# 概要
+
+Rag のバックエンドスクラッチ開発
+
 # 手順
 
 ## カレントディレクトリで Django プロジェクト開始
@@ -32,4 +36,28 @@ development.py の記述
 
 ```
 python manage.py runserver --settings config.settings.development
+```
+
+## アプリケーションの作成
+
+Django で用意されているアプリ作成コマンドがあるので、そちらで作成する
+
+```
+mkdir api
+cd api
+django-admin startapp rag
+```
+
+共通設定ファイル base.py に rest_framework 追記
+
+```
+INSTALLED_APPS = [
+    'django.contrib.admin',
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
+    'rest_framework',
+]
 ```
