@@ -29,7 +29,7 @@ class NormalChat(APIView):
     def post(self, request, format=None):
         user_id = request.data.get("user_id", "default_user")  # ユーザIDを取得、デフォルトは"default_user"
 
-        # セッションごとのメモリを保持
+        # ユーザごとのメモリを保持
         if user_id not in memory_map:
             memory_map[user_id] = ConversationBufferMemory(return_messages=True)
 
