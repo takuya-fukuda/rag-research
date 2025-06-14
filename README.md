@@ -1,6 +1,8 @@
 # 概要
 
 Rag のバックエンドスクラッチ開発
+Notion にたまっているナレッジをローカル RAG で参照できるようにする
+Notion にたまっているナレッジをローカル MCP で参照できるようにする
 
 # 手順
 
@@ -61,3 +63,75 @@ INSTALLED_APPS = [
     'rest_framework',
 ]
 ```
+
+urls.py を使ってアプリを登録し、進めていくと app の登録が必要なので、下記 name を rag から api.rag として追記
+
+```
+class RagConfig(AppConfig):
+    default_auto_field = 'django.db.models.BigAutoField'
+    name = 'api.rag'
+```
+
+作成したアプリは下記のように base.py に apps.py の内容登録しておかないと認識しない
+
+```
+INSTALLED_APPS = [
+    'django.contrib.admin',
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
+    'rest_framework',
+    'api.rag.apps.RagConfig'
+]
+```
+
+## DB セットアップ
+
+Posgre のインストール
+
+```
+https://www.postgresql.org/download/windows/
+https://qiita.com/tom-sato/items/037b8f8cb4b326710f71
+```
+
+以降 Posgre で DB を作成しておく。（CLI でもいいが Pgadmin が楽。）
+
+windows の Posgre に pgvector を入れる方法
+
+```
+https://qiita.com/sana_bungal/items/13366afb14ee1ebafff8
+```
+
+作成した DB にログインし、PgVector を使えるようにしておく
+
+```
+CREATE EXTENSION vector;
+```
+
+DB 構成
+
+```
+python manage.py makemigrations --settings config.settings.development rag
+```
+
+migrate するがエラーが出るので、マイグレーションファイルにあらかじめ以下 2 行追加
+
+```
+from pgvector.django import VectorExtension # 追加
+
+class Migration(migrations.Migration):
+    operations = [
+        VectorExtension(), # 追加
+        migrations.CreateModel()
+    ]
+```
+
+migrate する
+
+```
+python manage.py migrate --settings config.settings.development
+```
+
+OK が出れば終わり

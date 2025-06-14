@@ -40,3 +40,11 @@ class NormalChat(APIView):
         answer = conversation.predict(input=question)
 
         return Response({"question": question, "answer": answer})
+    
+
+class DataRegsiter(APIView):
+    def post(self, request, format=None):
+        user_id = request.data.get("user_id", "default_user")
+        data = request.data.get("data", "")
+
+        return Response({"message": "Data registered successfully."}, status=status.HTTP_201_CREATED)
