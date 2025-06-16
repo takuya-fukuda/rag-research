@@ -18,6 +18,7 @@ https://platform.openai.com/docs/guides/text?api-mode=responses&lang=python
 | アプリルート          | 概要説明                               |
 | --------------------- | -------------------------------------- |
 | /api/rag/normalchat   | 通常のオフラインチャット。RAG ではない |
+| /api/rag/ragchat      | 通常の RAG でのチャット。今後拡張      |
 | /api/rag/dataregister | RAG のデータ登録用                     |
 
 # Django を初期から設定する場合の手順（初学者向け）
