@@ -2,6 +2,9 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from django.db import connection
+from django.conf import settings
+from rest_framework_simplejwt.authentication import JWTAuthentication
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 import os
 from .models import DataTable
@@ -34,7 +37,7 @@ client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 # Create your views here.
 class NormalChat(APIView):
     def get(self, request, fromat=None):
-        return Response({"message": "Hello from the backend!"})
+        return Response({"message": "Postでリクエストしてください"})
     
     def post(self, request, format=None):
         user_id = request.data.get("user_id", "default_user")  # ユーザIDを取得、デフォルトは"default_user"
@@ -52,6 +55,9 @@ class NormalChat(APIView):
         return Response({"question": question, "answer": answer})
 
 class RagChat(APIView):
+    def get(self, request, fromat=None):
+        return Response({"message": "Postでリクエストしてください"})
+    
     def post(self, request, format=None):
         question = request.data.get("question", "")
         if not question:
@@ -92,6 +98,9 @@ class RagChat(APIView):
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class DataRegsiter(APIView):
+    def get(self, request, fromat=None):
+        return Response({"message": "Postでリクエストしてください"})
+
     def post(self, request, format=None):
         #PDFファイルの取得
         pdf_file = request.FILES.get("file")
@@ -128,3 +137,22 @@ class DataRegsiter(APIView):
             )
 
         return Response({"message": "Data registered successfully."}, status=status.HTTP_201_CREATED)
+
+class LoginView(APIView):
+    authentication_classes = [JWTAuthentication]  # 認証クラスを無効化
+    permission_classes = []  # 権限クラスを無効化
+
+    def post(self, request):
+        serializer = TokenObtainPairSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        access = serializer.validated_data.get("access", None)
+        refresh = serializer.validated_data.get("refresh", None)
+        if access:
+            response = Response(status=status.HTTP_200_OK)
+            max_age = settings.COOKIE_TIME
+            response.set_cookie('access', access, max_age=max_age, httponly=True, samesite='Lax')
+            response.set_cookie('refresh', refresh, max_age=max_age, httponly=True, samesite='Lax')
+
+            return response
+        
+        return Response({"error": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)

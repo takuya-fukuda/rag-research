@@ -10,7 +10,9 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
+from timedelta import datetime
 from pathlib import Path
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -123,3 +125,21 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+# JWTトークンを用いた認証用に追記
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+    'DEFAULT_PERMISSION_CLASSES': 'rest_framework.permissions.IsAuthenticated'
+}
+
+COOKIE_TIME = 60 * 60 * 12 # クッキーの有効期限（12時間）
+
+SIMPLE_JWT  = {
+    'ACCESS_TOKEN_LIFETIME': datetime.timedelta(minutes=15),  # アクセストークンの有効期限
+    'REFRESH_TOKEN_LIFETIME': datetime.timedelta(days=30),  # リフレッシュトークンの有効期限
+    'ROTATE_REFRESH_TOKENS': True,  # リフレッシュトークンのローテーションを有効にする
+    'UPDATE_LAST_LOGIN': True,  # ログイン時にユーザの最終ログイン時間を更新しない
+}

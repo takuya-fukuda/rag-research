@@ -179,3 +179,9 @@ from api.rag.serializers import DataTableSerializer
 serializer = DataTableSerializer(queryset, many=True)
 serializer.data
 ```
+
+## SuperUser の作成方法
+
+```
+python manage.py createsuperuser --username=fukuda_takuya --email=takuya-fukuda@outlook.jp --settings config.settings.development
+```
