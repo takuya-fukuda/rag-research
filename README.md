@@ -11,7 +11,8 @@ LangChain を使用。
 
 参考にしたリファレンス  
 https://platform.openai.com/docs/guides/text?api-mode=responses&lang=python  
-https://platform.openai.com/docs/guides/text?api-mode=responses&lang=python
+https://platform.openai.com/docs/guides/text?api-mode=responses&lang=python  
+https://github.com/makenotion/notion-mcp-server
 
 # API アプリケーションルート
 

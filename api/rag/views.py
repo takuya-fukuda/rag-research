@@ -4,7 +4,8 @@ from rest_framework import status
 from django.db import connection
 from django.conf import settings
 from rest_framework_simplejwt.authentication import JWTAuthentication
-from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer, TokenRefreshSerializer
+from api.rag.authentication import RefreshJWTAuthentication  # カスタム認証クラス
 
 import os
 from .models import DataTable
@@ -34,7 +35,7 @@ memory_map = {}
 # ベクトル
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
-# Create your views here.
+# ノーマルのAIチャット。ただし、データの学習はされない。
 class NormalChat(APIView):
     def get(self, request, fromat=None):
         return Response({"message": "Postでリクエストしてください"})
@@ -54,6 +55,7 @@ class NormalChat(APIView):
 
         return Response({"question": question, "answer": answer})
 
+# RAGを使用したAIチャット
 class RagChat(APIView):
     def get(self, request, fromat=None):
         return Response({"message": "Postでリクエストしてください"})
@@ -97,6 +99,7 @@ class RagChat(APIView):
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+# RAGのデータ登録用API（現在PDFのみ対応）
 class DataRegsiter(APIView):
     def get(self, request, fromat=None):
         return Response({"message": "Postでリクエストしてください"})
@@ -138,6 +141,7 @@ class DataRegsiter(APIView):
 
         return Response({"message": "Data registered successfully."}, status=status.HTTP_201_CREATED)
 
+# ログイン処理
 class LoginView(APIView):
     authentication_classes = [JWTAuthentication]  # 認証クラスを無効化
     permission_classes = []  # 権限クラスを無効化
@@ -156,3 +160,35 @@ class LoginView(APIView):
             return response
         
         return Response({"error": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)
+
+# トークン再発行処理
+class RetryView(APIView):
+    authentication_classes = [RefreshJWTAuthentication]  # 認証クラスを無効化
+    permission_classes = []  # 権限クラスを無効化
+
+    def post(self, request):
+        request.data['refresh'] = request.META.get('HTTP_REFRESH_TOKEN')
+        serializer = TokenRefreshSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        access = serializer.validated_data.get("access", None)
+        refresh = serializer.validated_data.get("refresh", None)
+        if access:
+            response = Response(status=status.HTTP_200_OK)
+            max_age = settings.COOKIE_TIME
+            response.set_cookie('access', access, max_age=max_age, httponly=True, samesite='Lax')
+            response.set_cookie('refresh', refresh, max_age=max_age, httponly=True, samesite='Lax')
+
+            return response
+        
+        return Response({"error": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)
+    
+# ログアウト処理
+class LogoutView(APIView):
+    authentication_classes = []
+    permission_classes = []
+
+    def post(self, request):
+        response = Response(status=status.HTTP_200_OK)
+        response.delete_cookie('access')
+        response.delete_cookie('refresh')
+        return response

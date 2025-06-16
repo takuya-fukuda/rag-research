@@ -13,4 +13,6 @@ urlpatterns = [
     path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'), #認証認可用
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'), #認証認可用
     path('login/', views.LoginView.as_view()),  # ログイン用
+    path('retry/', views.RetryView.as_view()),  # 再試行用
+    path('logout/', views.LogoutView.as_view()),  # ログアウト用
 ]
