@@ -9,4 +9,4 @@ class DataTable(models.Model):
     metadata = models.JSONField(default=dict, blank=True, null=True)
 
     class Meta:
-        db_table = 'data_tabel' #Adminで参照時data_tableと表示される
+        db_table = 'data_table' #Adminで参照時data_tableと表示される

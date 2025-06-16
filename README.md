@@ -6,7 +6,12 @@ Notion にたまっているナレッジをローカル MCP で参照できる�
 
 # 技術スタック
 
-Djnago で実装。フロントエンドは Next.js、バックエンドは Django の API で実装。
+Djnago で実装。フロントエンドは Next.js、バックエンドは Django の API で実装。  
+LangChain を使用。
+
+参考にしたリファレンス  
+https://platform.openai.com/docs/guides/text?api-mode=responses&lang=python  
+https://platform.openai.com/docs/guides/text?api-mode=responses&lang=python
 
 # API アプリケーションルート
 
@@ -15,7 +20,7 @@ Djnago で実装。フロントエンドは Next.js、バックエンドは Djan
 | /api/rag/normalchat   | 通常のオフラインチャット。RAG ではない |
 | /api/rag/dataregister | RAG のデータ登録用                     |
 
-# 手順
+# Django を初期から設定する場合の手順（初学者向け）
 
 ## カレントディレクトリで Django プロジェクト開始
 
@@ -146,3 +151,30 @@ python manage.py migrate --settings config.settings.development
 ```
 
 OK が出れば終わり
+
+## Serializers.py の定義について
+
+シェルで入ってみる
+
+```
+python manage.py shell --settings config.settings.development
+```
+
+下記 DB 操作クエリを実行すると扱いにくいデータ構造になっているのが分かる。
+このままでは扱いにくく、開発者が読める形式では返ってこない。
+Serializer を使用することが Django の REST フレームワークでは一般的。
+
+```
+from api.rag.models import DataTable
+queryset = DataTable.objects.all()
+queryset
+```
+
+以下でクエリを実行すると見やすいデータで返ってくる
+下記全データ返ってくるので注意
+
+```
+from api.rag.serializers import DataTableSerializer
+serializer = DataTableSerializer(queryset, many=True)
+serializer.data
+```
