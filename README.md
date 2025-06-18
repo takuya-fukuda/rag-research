@@ -4,6 +4,8 @@
 ・Notion にたまっているナレッジをローカル RAG で参照できるようにする  
 ・Notion にたまっているナレッジをローカル MCP で参照できるようにする
 
+![画面イメージ](./assets/rag_img.jpg)
+
 # 技術スタック
 
 Djnago で実装。フロントエンドは Next.js、バックエンドは Django の API で実装。  
@@ -21,6 +23,21 @@ https://github.com/makenotion/notion-mcp-server
 | /api/rag/normalchat   | 通常のオフラインチャット。RAG ではない |
 | /api/rag/ragchat      | 通常の RAG でのチャット。今後拡張      |
 | /api/rag/dataregister | RAG のデータ登録用                     |
+
+# API 使い方
+
+下記で起動し、URL アクセスすると Django の標準機能で API を叩ける。
+
+```
+python -m venv venv
+cd venv
+git clone https://github.com/takuya-fukuda/rag-research.git
+cd rag-research
+pip install -r requirements.txt
+python manage.py runserver --settings config.settings.development
+```
+
+データを登録するときは、Django の標準機能でファイルをポストできないため、Postman から実行
 
 # Django を初期から設定する場合の手順（初学者向け）
 

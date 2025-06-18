@@ -59,13 +59,24 @@ class NormalChat(APIView):
 
 # RAGを使用したAIチャット
 class RagChat(APIView):
+    authentication_classes = [JWTAuthentication]  # 認証クラスを無効化
+    permission_classes = []  # 権限クラスを無効化
     def get(self, request, fromat=None):
         return Response({"message": "Postでリクエストしてください"})
     
     def post(self, request, format=None):
         question = request.data.get("question", "")
+        user_id = request.data.get("user_id", "default_user")  # ユーザIDを取得、デフォルトは"default_user"
         if not question:
             return Response({"error": "No question provided."}, status=status.HTTP_400_BAD_REQUEST)
+        # ユーザごとのメモリを保持
+        if user_id not in memory_map:
+            memory_map[user_id] = ConversationBufferMemory(return_messages=True)
+
+        memory = memory_map[user_id]
+        conversation = ConversationChain(llm=llm, memory=memory)     
+
+
         try:
             embedding = client.embeddings.create(
                 model="text-embedding-3-small",
@@ -80,18 +91,12 @@ class RagChat(APIView):
                 )
                 rows = cursor.fetchall()
             retrieved_texts = "\n\n".join([row[1] for row in rows])
-            prompt = f"""以下は質問に対する参考文書です。\n\n{retrieved_texts}\n\n質問: {question}\n\nこれに基づいて回答してください。"""
+            prompt = f"""以下は質問に対する参考文書です。\n\n{retrieved_texts}\n\n質問: {question}\n\nこれに基づいて回答してください。参照できるドキュメントがない場合は、わかりませんと答えてください。"""
 
-            response = client.chat.completions.create(
-                model="gpt-4o",
-                messages=[
-                    {"role": "system", "content": "あなたは親切なアシスタントです。"},
-                    {"role": "user", "content": prompt}
-                ],
-                temperature=0.7,
-            )
-            answer = response.choices[0].message.content.strip()
-            # ④ 回答を返却
+            # ConversationChainにプロンプトとして入力（履歴も自動で考慮）
+            answer = conversation.predict(input=prompt)
+
+            # 回答を返却
             return Response({
                 "question": question,
                 "answer": answer,
@@ -103,6 +108,9 @@ class RagChat(APIView):
 
 # RAGのデータ登録用API（現在PDFのみ対応）
 class DataRegsiter(APIView):
+    authentication_classes = [JWTAuthentication]  # 認証クラスを無効化
+    permission_classes = []  # 権限クラスを無効化
+
     def get(self, request, fromat=None):
         return Response({"message": "Postでリクエストしてください"})
 
