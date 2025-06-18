@@ -148,3 +148,6 @@ SIMPLE_JWT  = {
 
 # CORS設定
 CORS_ALLOW_ALL_ORIGINS = True  # Django 3.2 以降
+
+# Cookie（JWTなど）を送信したい場合はこれも必要
+CORS_ALLOW_CREDENTIALS = True

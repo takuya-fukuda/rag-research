@@ -203,3 +203,13 @@ serializer.data
 ```
 python manage.py createsuperuser --username=fukuda_takuya --email=takuya-fukuda@outlook.jp --settings config.settings.development
 ```
+
+スーパユーザを使って DB を操作したい場合
+admin.py にテーブル情報を追記する
+
+```
+from .models import DataTable
+
+# Register your models here.
+admin.site.register(DataTable)
+```
