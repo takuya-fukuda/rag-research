@@ -40,10 +40,12 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
-    'api.rag.apps.RagConfig'
+    'api.rag.apps.RagConfig',
+    'corsheaders',  # CORS対応のために追加
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',  # CORS対応のために追加
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -143,3 +145,6 @@ SIMPLE_JWT  = {
     'ROTATE_REFRESH_TOKENS': True,  # リフレッシュトークンのローテーションを有効にする
     'UPDATE_LAST_LOGIN': True,  # ログイン時にユーザの最終ログイン時間を更新しない
 }
+
+# CORS設定
+CORS_ALLOW_ALL_ORIGINS = True  # Django 3.2 以降

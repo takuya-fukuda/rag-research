@@ -37,6 +37,8 @@ client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 # ノーマルのAIチャット。ただし、データの学習はされない。
 class NormalChat(APIView):
+    authentication_classes = [JWTAuthentication]  # 認証クラスを無効化
+    permission_classes = []  # 権限クラスを無効化
     def get(self, request, fromat=None):
         return Response({"message": "Postでリクエストしてください"})
     
