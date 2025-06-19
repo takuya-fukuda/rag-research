@@ -4,6 +4,9 @@
 ・Notion にたまっているナレッジをローカル RAG で参照できるようにする  
 ・Notion にたまっているナレッジをローカル MCP で参照できるようにする
 
+フロントエンドは下記リポジトリ  
+https://github.com/takuya-fukuda/rag-ui
+
 ![画面イメージ](./assets/rag_img.jpg)
 
 # 技術スタック
