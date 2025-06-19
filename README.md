@@ -15,9 +15,11 @@ Djnago で実装。フロントエンドは Next.js、バックエンドは Djan
 LangChain を使用。
 
 参考にしたリファレンス  
+Langchain  
 https://platform.openai.com/docs/guides/text?api-mode=responses&lang=python  
 https://platform.openai.com/docs/guides/text?api-mode=responses&lang=python  
-https://github.com/makenotion/notion-mcp-server
+LangChain による「SQL 操作をする方法」  
+https://zenn.dev/umi_mori/books/prompt-engineer/viewer/sql_langchain_chatgpt
 
 # API アプリケーションルート
 
