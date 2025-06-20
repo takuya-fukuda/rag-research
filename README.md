@@ -18,8 +18,8 @@ LangChain を使用。
 Langchain  
 https://platform.openai.com/docs/guides/text?api-mode=responses&lang=python  
 https://platform.openai.com/docs/guides/text?api-mode=responses&lang=python  
-LangChain による「SQL 操作をする方法」  
-https://zenn.dev/umi_mori/books/prompt-engineer/viewer/sql_langchain_chatgpt
+Agent による MCP 操作の参考記事
+https://qiita.com/tinymouse/items/2e22b655d8ba5fe6f3b3
 
 # API アプリケーションルート
 

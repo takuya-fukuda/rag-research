@@ -19,6 +19,16 @@ from langchain.chains import ConversationChain
 from langchain.memory import ConversationBufferMemory
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 
+#mcp
+import asyncio
+from langchain_openai import ChatOpenAI
+from langchain_core.prompts.chat import ChatPromptTemplate
+from langchain.agents import create_tool_calling_agent, AgentExecutor
+
+import mcp
+from langchain_mcp_adapters.tools import load_mcp_tools
+
+
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -150,6 +160,55 @@ class DataRegsiter(APIView):
             )
 
         return Response({"message": "Data registered successfully."}, status=status.HTTP_201_CREATED)
+
+class MCPAgentView(APIView):
+    authentication_classes = [JWTAuthentication]  # 認証クラスを無効化
+    permission_classes = []  # 権限クラスを無効化
+
+    def post(self, request):
+        question = request.data.get("question", "")
+        if not question:
+            return Response({"error": "No question provided"}, status=status.HTTP_400_BAD_REQUEST)
+
+        # 非同期でLangChain処理を実行
+        result = asyncio.run(self.run_agent(question))
+        return Response({"answer": result}, status=status.HTTP_200_OK)
+
+    async def run_agent(self, query):
+        # モデル
+        model = ChatOpenAI(
+            model="gpt-4",
+            temperature=0,
+            openai_api_key=os.getenv("OPENAI_API_KEY")  # 環境変数推奨
+        )
+
+        # プロンプト
+        prompt = ChatPromptTemplate.from_template(
+            """Question: {input}
+            Thought: Let's think step by step.
+            Use one of registered tools to answer the question.
+            Answer: {agent_scratchpad}"""
+        )
+
+        # MCP サーバに接続
+        params = mcp.StdioServerParameters(
+            command="python",
+            args=["./mcp_server/mcp_server.py"],  # ここはすでに起動済みならUnix socketなどに切り替えも検討
+        )
+
+        async with mcp.client.stdio.stdio_client(params) as (read, write):
+            async with mcp.ClientSession(read, write) as session:
+                await session.initialize()
+                tools = await load_mcp_tools(session)
+
+                # エージェント作成
+                agent = create_tool_calling_agent(model, tools, prompt)
+                executor = AgentExecutor(agent=agent, tools=tools)
+
+                # 推論
+                result = await executor.ainvoke({"input": query})
+                return result.get("output", result)  # dict形式ならoutputキーで取り出す        
+
 
 # ログイン処理
 class LoginView(APIView):
