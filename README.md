@@ -19,15 +19,8 @@ https://qiita.com/tinymouse/items/2e22b655d8ba5fe6f3b3
 
 # 技術スタック
 
-Djnago で実装。フロントエンドは Next.js、バックエンドは Django の API で実装。  
+Djnago で実装。フロントエンドは React または Next.js、バックエンドは Django の API で実装。  
 LangChain を使用。
-
-参考にしたリファレンス  
-Langchain  
-https://platform.openai.com/docs/guides/text?api-mode=responses&lang=python  
-https://platform.openai.com/docs/guides/text?api-mode=responses&lang=python  
-Agent による MCP 操作の参考記事
-https://qiita.com/tinymouse/items/2e22b655d8ba5fe6f3b3
 
 # API アプリケーションルート
 
@@ -36,6 +29,7 @@ https://qiita.com/tinymouse/items/2e22b655d8ba5fe6f3b3
 | /api/rag/normalchat   | 通常のオフラインチャット。RAG ではない |
 | /api/rag/ragchat      | 通常の RAG でのチャット。今後拡張      |
 | /api/rag/dataregister | RAG のデータ登録用                     |
+| /api/rag/mcp          | mcp 経由での情報参照                   |
 
 # API 使い方
 
