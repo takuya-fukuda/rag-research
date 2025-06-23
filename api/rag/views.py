@@ -114,10 +114,13 @@ class RagChat(APIView):
             })
         
         except Exception as e:
-            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response(
+                {"error": f"処理中にエラーが発生しました: {str(e)}"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
 
 # RAGのデータ登録用API（現在PDFのみ対応）
-class DataRegsiter(APIView):
+class DataRegisiter(APIView):
     authentication_classes = [JWTAuthentication]  # 認証クラスを無効化
     permission_classes = []  # 権限クラスを無効化
 
@@ -177,7 +180,7 @@ class MCPAgentView(APIView):
     async def run_agent(self, query):
         # モデル
         model = ChatOpenAI(
-            model="gpt-4",
+            model="gpt-4o",
             temperature=0,
             openai_api_key=os.getenv("OPENAI_API_KEY")  # 環境変数推奨
         )
@@ -203,10 +206,11 @@ class MCPAgentView(APIView):
 
                 # エージェント作成
                 agent = create_tool_calling_agent(model, tools, prompt)
-                executor = AgentExecutor(agent=agent, tools=tools)
+                executor = AgentExecutor(agent=agent, tools=tools) #max_iterations=2で呼び出し回数を1回に制限
 
                 # 推論
                 result = await executor.ainvoke({"input": query})
+                print(result)
                 return result.get("output", result)  # dict形式ならoutputキーで取り出す        
 
 
