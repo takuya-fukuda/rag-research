@@ -17,6 +17,11 @@ https://qiita.com/tinymouse/items/2e22b655d8ba5fe6f3b3
 
 ![画面イメージ](./assets/mcp_img.jpg)
 
+# PaperWithCode トレンド
+
+下記の PDF 解析の Git を使用すれば、構造化され、RAG の検索精度も上がりそうである。
+https://github.com/bytedance/dolphin
+
 # 技術スタック
 
 Djnago で実装。フロントエンドは React または Next.js、バックエンドは Django の API で実装。  
