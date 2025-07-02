@@ -36,26 +36,83 @@ LangChain を使用。
 | /api/rag/dataregister | RAG のデータ登録用                     |
 | /api/rag/mcp          | mcp 経由での情報参照                   |
 
-# API 使い方
+# API 仕様
 
-下記で起動し、URL アクセスすると Django の標準機能で API を叩ける。
+## ノーマルチャット
 
-```
-python -m venv venv
-cd venv
-git clone https://github.com/takuya-fukuda/rag-research.git
-cd rag-research
-pip install -r requirements.txt
-python manage.py runserver --settings config.settings.development
-```
+### エンドポイント情報
 
-データを登録するときは、Django の標準機能でファイルをポストできないため、Postman から実行
+| 項目     | 値                                       |
+| -------- | ---------------------------------------- |
+| APIURL   | http://localhost:5000/api/rag/normalchat |
+| メソッド | POST                                     |
+
+#### リクエストボディ
+
+| パラメータ | 型     |
+| ---------- | ------ |
+| user_id    | string |
+| question   | string |
+
+#### レスポンス(JSON)
+
+| フィールド | 型     |
+| ---------- | ------ |
+| question   | string |
+| answer     | string |
+
+## RAG チャット
+
+### エンドポイント情報
+
+| 項目     | 値                                    |
+| -------- | ------------------------------------- |
+| APIURL   | http://localhost:5000/api/rag/ragchat |
+| メソッド | POST                                  |
+
+#### リクエストボディ
+
+| パラメータ | 型     |
+| ---------- | ------ |
+| user_id    | string |
+| question   | string |
+
+#### レスポンス(JSON)
+
+| フィールド | 型       |
+| ---------- | -------- |
+| question   | string   |
+| answer     | string   |
+| references | string[] |
+
+## データ登録（PDF）
+
+### エンドポイント情報
+
+| 項目     | 値                                         |
+| -------- | ------------------------------------------ |
+| APIURL   | http://localhost:5000/api/rag/dataregister |
+| メソッド | POST                                       |
+
+#### リクエストボディ
+
+| 形式     | パラメータ | 型  |
+| -------- | ---------- | --- |
+| formData | file       | PDF |
+
+#### レスポンス(JSON)
+
+| フィールド | 型     |
+| ---------- | ------ |
+| message    | string |
 
 # Django を初期から設定する場合の手順（初学者向け）
 
 ## カレントディレクトリで Django プロジェクト開始
 
 ```
+mkdir rag-research
+cd ragresearch
 django-admin startproject config .
 ```
 
