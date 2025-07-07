@@ -11,6 +11,8 @@ https://github.com/takuya-fukuda/rag-ui
 
 # MCP の課題
 
+別途こちらでも検証：https://github.com/takuya-fukuda/mcp-research
+
 MCP クライアントが Claude や Cursor 前提で作成されており、自身のアプリケーション自体に実装が困難。
 そのため LangChain の MCP アダプターを使用して、自身のアプリケーションで使用できるように改良していく。  
 https://qiita.com/tinymouse/items/2e22b655d8ba5fe6f3b3
