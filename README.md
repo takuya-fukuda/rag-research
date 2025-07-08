@@ -36,7 +36,7 @@ LangChain を使用。
 | /api/rag/normalchat   | 通常のオフラインチャット。RAG ではない |
 | /api/rag/ragchat      | 通常の RAG でのチャット。今後拡張      |
 | /api/rag/dataregister | RAG のデータ登録用                     |
-| /api/rag/mcp          | mcp 経由での情報参照                   |
+| /api/rag/mcp          | mcp 経由での Notion 参照               |
 
 # API 仕様
 

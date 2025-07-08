@@ -20,10 +20,12 @@ from langchain.memory import ConversationBufferMemory
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 
 #mcp
+import json
 import asyncio
-from langchain_openai import ChatOpenAI
-from langchain_core.prompts.chat import ChatPromptTemplate
-from langchain.agents import create_tool_calling_agent, AgentExecutor
+from langgraph.prebuilt import create_react_agent
+from langchain_mcp_adapters.tools import load_mcp_tools
+from mcp import ClientSession, StdioServerParameters
+from mcp.client.stdio import stdio_client
 
 import mcp
 from langchain_mcp_adapters.tools import load_mcp_tools
@@ -173,45 +175,38 @@ class MCPAgentView(APIView):
         if not question:
             return Response({"error": "No question provided"}, status=status.HTTP_400_BAD_REQUEST)
 
-        # 非同期でLangChain処理を実行
-        result = asyncio.run(self.run_agent(question))
-        return Response({"answer": result}, status=status.HTTP_200_OK)
+        try:
+            response_data = asyncio.run(self.invoke_agent(question))
+            return Response({"result": response_data}, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-    async def run_agent(self, query):
-        # モデル
-        model = ChatOpenAI(
-            model="gpt-4o",
-            temperature=0,
-            openai_api_key=os.getenv("OPENAI_API_KEY")  # 環境変数推奨
+    async def invoke_agent(self, question):
+        openai_api_key = os.getenv("OPENAI_API_KEY")
+        notion_token = os.getenv("MCP_SECRET")
+
+        if not openai_api_key or not notion_token:
+            raise EnvironmentError("OPENAI_API_KEY または MCP_SECRET が設定されていません")
+        
+        mcp_headers = json.dumps({
+            "Authorization": f"Bearer {notion_token}",
+            "Notion-Version": "2022-06-28"
+        })
+        
+        server_params = StdioServerParameters(
+            command="npx",
+            args=["-y", "@notionhq/notion-mcp-server"],
+            env={"OPENAPI_MCP_HEADERS": mcp_headers}
         )
 
-        # プロンプト
-        prompt = ChatPromptTemplate.from_template(
-            """Question: {input}
-            Thought: Let's think step by step.
-            Use one of registered tools to answer the question.
-            Answer: {agent_scratchpad}"""
-        )
-
-        # MCP サーバに接続
-        params = mcp.StdioServerParameters(
-            command="python",
-            args=["./mcp_server/mcp_server.py"],  # ここはすでに起動済みならUnix socketなどに切り替えも検討
-        )
-
-        async with mcp.client.stdio.stdio_client(params) as (read, write):
-            async with mcp.ClientSession(read, write) as session:
-                await session.initialize()
+        async with stdio_client(server_params) as (read, write):
+            async with ClientSession(read, write) as session:
                 tools = await load_mcp_tools(session)
-
-                # エージェント作成
-                agent = create_tool_calling_agent(model, tools, prompt)
-                executor = AgentExecutor(agent=agent, tools=tools) #max_iterations=2で呼び出し回数を1回に制限
-
-                # 推論
-                result = await executor.ainvoke({"input": query})
-                print(result)
-                return result.get("output", result)  # dict形式ならoutputキーで取り出す        
+                agent = create_react_agent("openai:gpt-4o", tools=tools)
+                response = await agent.ainvoke({
+                    "messages": [{"role": "user", "content": question}]
+                })
+                return response        
 
 
 # ログイン処理
