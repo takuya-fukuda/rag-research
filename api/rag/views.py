@@ -170,6 +170,9 @@ class MCPAgentView(APIView):
     authentication_classes = [JWTAuthentication]  # 認証クラスを無効化
     permission_classes = []  # 権限クラスを無効化
 
+    def get(self, request, fromat=None):
+        return Response({"message": "Postでリクエストしてください"})
+    
     def post(self, request):
         question = request.data.get("question", "")
         if not question:
@@ -177,7 +180,16 @@ class MCPAgentView(APIView):
 
         try:
             response_data = asyncio.run(self.invoke_agent(question))
-            return Response({"result": response_data}, status=status.HTTP_200_OK)
+
+            response_text = ""
+            for message in response_data["messages"]:
+                message_dict = dict(message)
+                if message_dict.get("type") == "ai":
+                    content = message_dict.get("content", "")
+                    if content.strip():
+                        response_text = content
+                        break
+            return Response({"result": response_text}, status=status.HTTP_200_OK)
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
