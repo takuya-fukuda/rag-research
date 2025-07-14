@@ -129,6 +129,23 @@ LangChain を使用。
 | ---------- | ----------------------------------------- |
 | message    | mcp の結果をそのまま返却（JSON そのまま） |
 
+# 仮想環境の構築
+
+今回は依存関係を高速で解決してくれる「uv」パッケージを使用
+リポジトリの「rag-research」フォルダ内で
+
+```
+uv venv uv-venv
+cd ./uv-venv/Scripts
+.\activate.ps1
+cd ..
+cd ..
+uv pip install -r requirements.txt
+python manage.py runserver --settings config.settings.development
+```
+
+DB セットアップされていれば起動できる
+
 # Django を初期から設定する場合の手順（初学者向け）
 
 ## カレントディレクトリで Django プロジェクト開始
